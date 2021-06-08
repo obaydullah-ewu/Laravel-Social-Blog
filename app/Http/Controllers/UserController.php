@@ -13,7 +13,7 @@ class UserController extends Controller
     {
         $this->middleware('auth', ['except' => ['index']]);
     }
-    
+
     public function edit() {
         if(Auth::user()){
             $user = User::find(Auth::user()->id);
@@ -39,7 +39,7 @@ class UserController extends Controller
                     'email' => 'required|email',
                     'city' => 'nullable',
                     'cover_image' => 'image|nullable|max:1999'
-    
+
                 ]);
             } else {
                 $validate = $request->validate([
@@ -54,29 +54,39 @@ class UserController extends Controller
                 $user->email = $request->get('email');
                 $user->city = $request->get('city');
                 $user->country = $request->get('country');
-                
-                if($request->hasFile('cover_image')){                    
-                    $filenameWithExt = $request->file('cover_image')->getClientOriginalName();                    
-                    $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);                   
-                    $extension = $request->file('cover_image')->getClientOriginalExtension();
+
+                if($request->hasFile('cover_image')){
+                    // Get filename with the extension
+                    $filenameWithExt = $request->file('cover_image')->getClientOriginalName();
+                    // Get just filename
+                    $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+                    // Get just ext
+                    $extension = $request->file('file')->getClientOriginalExtension();
+                    // Filename to store
                     $fileNameToStore = $filename.'_'.time().'_'.$extension;
-                    $path = $request->file('cover_image')->storeAs('public/cover_images', $fileNameToStore);
+                    // Upload Image
+                    $path = $request->file('file')->storeAs('public/cover_images', $fileNameToStore);
+//                    $filenameWithExt = $request->file('cover_image')->getClientOriginalName();
+//                    $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+//                    $extension = $request->file('cover_image')->getClientOriginalExtension();
+//                    $fileNameToStore = $filename.'_'.time().'_'.$extension;
+//                    $path = $request->file('cover_image')->storeAs('public/cover_images', $fileNameToStore);
                 }
                 if($request->hasFile('cover_image')){
-                    $user->cover_image = $fileNameToStore;  
+                    $user->cover_image = $fileNameToStore;
                 }
                 $user->save();
                 return redirect()->back()->with('success', 'Your profile has been updated');
             }else{
                 return redirect()-back();
             }
-            
+
         } else {
             return redirect()->back();
         }
     }
 
-    
+
     public function passwordEdit(){
         if(Auth::user()){
             return view('user.password');
@@ -112,5 +122,5 @@ class UserController extends Controller
         return view('user.searchpeople', compact('users'));
 
     }
-    
+
 }
